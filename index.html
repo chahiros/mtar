@@ -10,7 +10,24 @@
 
     <title>V0.04 Service de suivi pluviométrique</title>
 </head>
+<script>
+    const scrollToTopButton = document.getElementById("scrollToTopButton");
 
+    function toggleScrollToTopButton() {
+        if (window.pageYOffset > 300) {
+            scrollToTopButton.style.display = "block";
+        } else {
+            scrollToTopButton.style.display = "none";
+        }
+    }
+
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    window.addEventListener("scroll", toggleScrollToTopButton);
+    scrollToTopButton.addEventListener("click", scrollToTop);
+</script>
 <body class="d-flex flex-column h-100">
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -23,51 +40,6 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Accueil</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Services</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Contact</a>
-                        </li>
-                         <li class="nav-item">
-                            <a class="nav-link" href="#">Accueil</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Services</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Contact</a>
-                        </li>
-                         <li class="nav-item">
-                            <a class="nav-link" href="#">Accueil</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Services</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Contact</a>
-                        </li>
-                         <li class="nav-item">
-                            <a class="nav-link" href="#">Accueil</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Services</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Contact</a>
-                        </li>
-                         <li class="nav-item">
-                            <a class="nav-link" href="#">Accueil</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Services</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Contact</a>
-                        </li>
-                         <li class="nav-item">
                             <a class="nav-link" href="#">Accueil</a>
                         </li>
                         <li class="nav-item">
@@ -95,6 +67,22 @@
                         <li>Accès aux données historiques</li>
                         <li>Alertes personnalisées</li>
                         <li>Support technique 24/7</li>
+                         <li>Surveillance en temps réel des précipitations</li>
+                        <li>Accès aux données historiques</li>
+                        <li>Alertes personnalisées</li>
+                        <li>Support technique 24/7</li>
+                         <li>Surveillance en temps réel des précipitations</li>
+                        <li>Accès aux données historiques</li>
+                        <li>Alertes personnalisées</li>
+                        <li>Support technique 24/7</li>
+                         <li>Surveillance en temps réel des précipitations</li>
+                        <li>Accès aux données historiques</li>
+                        <li>Alertes personnalisées</li>
+                        <li>Support technique 24/7</li>
+                         <li>Surveillance en temps réel des précipitations</li>
+                        <li>Accès aux données historiques</li>
+                        <li>Alertes personnalisées</li>
+                        <li>Support technique 24/7</li>
                     </ul>
                     <a href="#" class="btn btn-primary">En savoir plus</a>
                 </div>
@@ -110,7 +98,9 @@
             <p class="text-center mb-0">&copy; 2023 PluviométriePro. Tous droits réservés.</p>
         </div>
     </footer>
-
+<button id="scrollToTopButton" class="btn btn-primary rounded-circle position-fixed" style="display: none; bottom: 20px; right: 20px;" title="Retour en haut">
+    <i class="bi bi-arrow-up"></i>
+</button>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
 </body>
