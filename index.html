@@ -11,24 +11,27 @@
     <title>V0.07 Service de suivi pluviométrique</title>
 </head>
 <script>
-    const mainElement = document.getElementById("main");
-    const scrollToTopButton = document.getElementById("scrollToTopButton");
+    document.addEventListener("DOMContentLoaded", function () {
+        const mainElement = document.getElementById("main");
+        const scrollToTopButton = document.getElementById("scrollToTopButton");
 
-    function toggleScrollToTopButton() {
-        if (mainElement.scrollTop > 300) {
-            scrollToTopButton.style.display = "block";
-        } else {
-            scrollToTopButton.style.display = "none";
+        function toggleScrollToTopButton() {
+            if (mainElement.scrollTop > 300) {
+                scrollToTopButton.style.display = "block";
+            } else {
+                scrollToTopButton.style.display = "none";
+            }
         }
-    }
 
-    function scrollToTop() {
-        mainElement.scrollTo({ top: 0, behavior: "smooth" });
-    }
+        function scrollToTop() {
+            mainElement.scrollTo({ top: 0, behavior: "smooth" });
+        }
 
-    mainElement.addEventListener("scroll", toggleScrollToTopButton);
-    scrollToTopButton.addEventListener("click", scrollToTop);
+        mainElement.addEventListener("scroll", toggleScrollToTopButton);
+        scrollToTopButton.addEventListener("click", scrollToTop);
+    });
 </script>
+
 
 <body class="d-flex flex-column h-100">
     <header>
