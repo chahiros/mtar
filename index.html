@@ -11,10 +11,11 @@
     <title>V0.06 Service de suivi pluviométrique</title>
 </head>
 <script>
+    const mainElement = document.getElementById("main");
     const scrollToTopButton = document.getElementById("scrollToTopButton");
 
     function toggleScrollToTopButton() {
-        if (window.pageYOffset > 300) {
+        if (mainElement.scrollTop > 300) {
             scrollToTopButton.style.display = "block";
         } else {
             scrollToTopButton.style.display = "none";
@@ -22,12 +23,13 @@
     }
 
     function scrollToTop() {
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        mainElement.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    window.addEventListener("scroll", toggleScrollToTopButton);
+    mainElement.addEventListener("scroll", toggleScrollToTopButton);
     scrollToTopButton.addEventListener("click", scrollToTop);
 </script>
+
 <body class="d-flex flex-column h-100">
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -54,7 +56,7 @@
         </nav>
     </header>
 
-    <main class="flex-grow-1 overflow-auto">
+    <main id="main" class="flex-grow-1 overflow-auto">
         <section class="container my-5">
             <div class="row">
                 <div class="col-md-6">
