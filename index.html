@@ -30,6 +30,131 @@
         mainElement.addEventListener("scroll", toggleScrollToTopButton);
         scrollToTopButton.addEventListener("click", scrollToTop);
     });
+    
+    
+      <script>
+    class WeatherData {
+  constructor(jsonData) {
+    this.help = jsonData.help;
+    this.success = jsonData.success;
+    this.result = {
+      resource_id: jsonData.result.resource_id,
+      fields: jsonData.result.fields,
+      records: jsonData.result.records.map(record => ({
+        Cumul_periode_precedente: parseFloat(record.Cumul_periode_precedente),
+        Cumul_moy_du_mois: parseFloat(record.Cumul_moy_du_mois),
+        Cumul_mois_precedent: parseFloat(record.Cumul_mois_precedent),
+        Pluvio_du_jour: parseFloat(record.Pluvio_du_jour),
+        station: record.station,
+        Cumul_periode: parseFloat(record.Cumul_periode),
+        Cumul_du_mois: parseFloat(record.Cumul_du_mois),
+        Date: new Date(record.Date),
+        _id: parseInt(record._id),
+        Cumul_moy_periode: parseFloat(record.Cumul_moy_periode)
+      })),
+      _links: jsonData.result._links,
+      limit: jsonData.result.limit,
+      total: jsonData.result.total
+    };
+  }
+}
+
+    async function fetchData() {
+  const url = 'http://agridata.tn/fr/api/3/action/datastore_search?resource_id=e93a4205-84de-47a5-bcdb-e00520b15e10&limit=5';
+  
+  try {
+    const response = await fetch(url);
+    const jsonData = await response.json();
+    const weatherData = new WeatherData(jsonData);
+    console.log(weatherData);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+    async function populateSelectOptions() {
+      const weatherData = await fetchData();
+
+      // Populate station select options
+      const stationSelect = document.getElementById("stationSelect");
+      const uniqueStations = Array.from(new Set(weatherData.result.records.map(record => record.station)));
+      uniqueStations.forEach(station => {
+        const option = document.createElement("option");
+        option.value = station;
+        option.text = station;
+        stationSelect.add(option);
+      });
+
+      // Populate year select options
+      const yearSelect = document.getElementById("yearSelect");
+      const uniqueYears = Array.from(new Set(weatherData.result.records.map(record => record.Date.getFullYear())));
+      uniqueYears.sort().forEach(year => {
+        const option = document.createElement("option");
+        option.value = year;
+        option.text = year;
+        yearSelect.add(option);
+      });
+    }
+
+    function filterData(weatherData, selectedStation, selectedYear) {
+      return weatherData.result.records.filter(record => 
+        record.station === selectedStation && record.Date.getFullYear() === parseInt(selectedYear)
+      );
+    }
+
+    function displayChart(filteredData) {
+      const chartContainer = document.getElementById("chartContainer");
+      chartContainer.innerHTML = '<canvas id="chart"></canvas>';
+
+      const ctx = document.getElementById("chart").getContext("2d");
+      const chartData = {
+        labels: filteredData.map(record => record.Date.toISOString().split("T")[0]),
+        datasets: [{
+          label: "Pluvio_du_jour",
+          data: filteredData.map(record => record.Pluvio_du_jour),
+          backgroundColor: "rgba(75, 192, 192, 0.2)",
+          borderColor: "rgba(75, 192, 192, 1)",
+          borderWidth: 1
+        }]
+      };
+
+      const chartConfig = {
+        type: "line",
+        data: chartData,
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      };
+
+      new Chart(ctx, chartConfig);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      populateSelectOptions();
+
+      const searchButton = document.getElementById("searchButton");
+      searchButton.addEventListener("click", async () => {
+        const stationSelect = document.getElementById("stationSelect");
+        const yearSelect = document.getElementById("yearSelect");
+
+        const selectedStation = stationSelect.value;
+        const selectedYear = yearSelect.value;
+
+        const weatherData = await fetchData();
+        const filteredData = filterData(weatherData, selectedStation, selectedYear);
+        displayChart(filteredData);
+      });
+    });
+  </script>
+    
+    
+    
+    
+    
 </script>
 
 
@@ -71,25 +196,41 @@
                         <li>Surveillance en temps réel des précipitations</li>
                         <li>Accès aux données historiques</li>
                         <li>Alertes personnalisées</li>
-                        <li>Support technique 24/7</li>
-                         <li>Surveillance en temps réel des précipitations</li>
-                        <li>Accès aux données historiques</li>
-                        <li>Alertes personnalisées</li>
-                        <li>Support technique 24/7</li>
-                         <li>Surveillance en temps réel des précipitations</li>
-                        <li>Accès aux données historiques</li>
-                        <li>Alertes personnalisées</li>
-                        <li>Support technique 24/7</li>
-                         <li>Surveillance en temps réel des précipitations</li>
-                        <li>Accès aux données historiques</li>
-                        <li>Alertes personnalisées</li>
-                        <li>Support technique 24/7</li>
-                         <li>Surveillance en temps réel des précipitations</li>
-                        <li>Accès aux données historiques</li>
-                        <li>Alertes personnalisées</li>
-                        <li>Support technique 24/7</li>
+
                     </ul>
                     <a href="#" class="btn btn-primary">En savoir plus</a>
+                    <div class="container">
+    <h1 class="my-4">Weather Data</h1>
+
+    <div class="row">
+      <div class="col-md-4">
+        <label for="stationSelect" class="form-label">Station</label>
+        <select class="form-select" id="stationSelect">
+          <!-- Options will be populated using JavaScript -->
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <label for="yearSelect" class="form-label">Year</label>
+        <select class="form-select" id="yearSelect">
+          <!-- Options will be populated using JavaScript -->
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <button class="btn btn-primary mt-4" id="searchButton">Search</button>
+      </div>
+    </div>
+
+    <div class="row mt-5">
+      <div class="col-12">
+        <div id="chartContainer">
+          <!-- Chart will be displayed here using JavaScript -->
+        </div>
+      </div>
+    </div>
+  </div>
+
                 </div>
                 <div class="col-md-6">
                     <i style="font-size: 3vw;" fill="currentColor" class="bi bi-cloud-drizzle"></i>
@@ -109,6 +250,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </body>
 
 </html>
