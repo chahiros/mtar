@@ -118,7 +118,7 @@ async function fetchFileContent(url) {
       const chartContainer = document.getElementById("chartContainer");
       chartContainer.innerHTML = '<canvas id="chart"></canvas>';
 
-      const ctx = document.getElementById("chart").getContext("3d");
+      const ctx = document.getElementById("chart").getContext("2d");
       const chartData = {
         labels: filteredData.map(record => record.Date.toISOString().split("T")[0]),
         datasets: [/*{
