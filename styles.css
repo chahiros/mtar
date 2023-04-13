@@ -1,0 +1,58 @@
+/* General styles */
+body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    background-color: #f8f9fa;
+}
+
+h1, h5 {
+    color: #5a6268;
+}
+
+.card {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
+    transition: 0.3s;
+}
+
+.card:hover {
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+}
+
+.card .card-body {
+    padding-bottom: 0;
+}
+
+.card .card-title {
+    margin-bottom: 0.5rem;
+}
+
+.card .card-text {
+    color: #6c757d;
+}
+
+.list-group-item {
+    border-top: 1px solid #dee2e6;
+}
+
+.list-group-item:first-child {
+    border-top: none;
+}
+
+/* Menu item styles */
+.menu-item-title {
+    font-weight: bold;
+}
+
+.menu-item-description {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.menu-item-price {
+    font-weight: bold;
+}
+
+/* Customize Bootstrap icon colors */
+.bi {
+    color: #5a6268;
+}
