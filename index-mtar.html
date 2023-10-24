@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="fr" class="h-100">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+
+    <title>Service de suivi pluviométrique 24102023</title>
+</head>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const mainElement = document.getElementById("main");
+        const scrollToTopButton = document.getElementById("scrollToTopButton");
+
+        function toggleScrollToTopButton() {
+            if (mainElement.scrollTop > 300) {
+                scrollToTopButton.style.display = "block";
+            } else {
+                scrollToTopButton.style.display = "none";
+            }
+        }
+
+        function scrollToTop() {
+            mainElement.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        mainElement.addEventListener("scroll", toggleScrollToTopButton);
+        scrollToTopButton.addEventListener("click", scrollToTop);
+    });
+    
+    
+      
+    class WeatherData {
+  constructor(jsonData) {
+    this.help = jsonData.help;
+    this.success = jsonData.success;
+    this.result = {
+      resource_id: jsonData.result.resource_id,
+      fields: jsonData.result.fields,
+      records: jsonData.result.records.map(record => ({
+        Cumul_periode_precedente: parseFloat(record.Cumul_periode_precedente),
+        Cumul_moy_du_mois: parseFloat(record.Cumul_moy_du_mois),
+        Cumul_mois_precedent: parseFloat(record.Cumul_mois_precedent),
+        Pluvio_du_jour: parseFloat(record.Pluvio_du_jour),
+        station: record.station,
+        Cumul_periode: parseFloat(record.Cumul_periode),
+        Cumul_du_mois: parseFloat(record.Cumul_du_mois),
+        Date: new Date(record.Date),
+        _id: parseInt(record._id),
+        Cumul_moy_periode: parseFloat(record.Cumul_moy_periode)
+      })),
+      _links: jsonData.result._links,
+      limit: jsonData.result.limit,
+      total: jsonData.result.total
+    };
+  }
+}
+
+    async function fetchData() {
+ // const url = 'http://agridata.tn/fr/api/3/action/datastore_search?resource_id=e93a4205-84de-47a5-bcdb-e00520b15e10&limit=5';
+  
+  try {
+    //const response = await fetch(url);
+   // const jsonData = await response.json();
+      const data = await fetchFileContent('data.json');
+   const jsonData = JSON.parse(data); 
+      const weatherData = new WeatherData(jsonData);
+    console.log(weatherData);
+      return weatherData;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+async function fetchFileContent(url) {
+  try {
+    const response = await fetch(url);
+    const fileContent = await response.text();
+    return fileContent;
+  } catch (error) {
+    console.error("Error fetching file:", error);
+  }
+}
+    async function populateSelectOptions() {
+      const weatherData = await fetchData();
+
+      // Populate station select options
+      const stationSelect = document.getElementById("stationSelect");
+      const uniqueStations = Array.from(new Set(weatherData.result.records.map(record => record.station)));
+      uniqueStations.forEach(station => {
+        const option = document.createElement("option");
+        option.value = station;
+        option.text = station;
+        stationSelect.add(option);
+      });
+
+      // Populate year select options
+      const yearSelect = document.getElementById("yearSelect");
+      const uniqueYears = Array.from(new Set(weatherData.result.records.map(record => record.Date.getFullYear())));
+      uniqueYears.sort().forEach(year => {
+        const option = document.createElement("option");
+        option.value = year;
+        option.text = year;
+        yearSelect.add(option);
+      });
+    }
+
+    function filterData(weatherData, selectedStation, selectedYear) {
+      return weatherData.result.records.filter(record => 
+        record.station === selectedStation && record.Date.getFullYear() === parseInt(selectedYear)
+      );
+    }
+
+    function displayChart(filteredData) {
+      const chartContainer = document.getElementById("chartContainer");
+      chartContainer.innerHTML = '<canvas id="chart"></canvas>';
+
+      const ctx = document.getElementById("chart").getContext("2d");
+      const chartData = {
+        labels: filteredData.map(record => record.Date.toISOString().split("T")[0]),
+        datasets: [/*{
+          label: "Pluvio_du_jour",
+          data: filteredData.map(record => record.Pluvio_du_jour),
+          backgroundColor: "rgba(75, 192, 192, 0.2)",
+          borderColor: "rgba(75, 192, 192, 1)",
+          borderWidth: 1
+        },*/
+        /*
+        {
+          label: "Cumul_periode",
+          data: filteredData.map(record => record.Cumul_periode),
+          backgroundColor: "rgba(75, 192, 192, 0.2)",
+          borderColor: "rgba(75, 192, 192, 1)",
+          borderWidth: 1
+        },
+        {
+          label: "Cumul_periode_precedente",
+          data: filteredData.map(record => record.Cumul_periode_precedente),
+          backgroundColor: "rgba(55, 55, 55, 0.2)",
+          borderColor: "rgba(44, 44, 44, 1)",
+          borderWidth: 1
+        } 
+        ,*/
+        {
+          label: "Cumul_moy_periode",
+          data: filteredData.map(record => record.Cumul_moy_periode),
+          backgroundColor: "rgba(200, 0, 0, 0.2)",
+          borderColor: "rgba(200 0, 0, 1)",
+          borderWidth: 1
+        } 
+      
+      ]
+      };
+
+      const chartConfig = {
+        type: "line",
+        data: chartData,
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      };
+
+      new Chart(ctx, chartConfig);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      populateSelectOptions();
+
+      const searchButton = document.getElementById("searchButton");
+      searchButton.addEventListener("click", async () => {
+        const stationSelect = document.getElementById("stationSelect");
+        const yearSelect = document.getElementById("yearSelect");
+
+        const selectedStation = stationSelect.value;
+        const selectedYear = yearSelect.value;
+
+        const weatherData = await fetchData();
+        const filteredData = filterData(weatherData, selectedStation, selectedYear);
+        displayChart(filteredData);
+      });
+    });
+  </script>
+    
+    
+    
+    
+    
+</script>
+
+
+<body class="d-flex flex-column h-100">
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="#">PluviométriePro</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Accueil</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Services</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Contact</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main id="main" class="flex-grow-1 overflow-auto">
+        <section class="container my-5">
+            <div class="row">
+                <div class="col-md-6">
+                    <h1>V0.083  Service de suivi pluviométrique</h1>
+                    <p>
+                        Notre service de suivi pluviométrique vous permet de surveiller les précipitations en temps réel et d'accéder aux données historiques pour analyser les tendances météorologiques.
+                    </p>
+                    <ul>
+                        <li>Surveillance en temps réel des précipitations</li>
+                        <li>Accès aux données historiques</li>
+                        <li>Alertes personnalisées</li>
+
+                    </ul>
+                    <a href="#" class="btn btn-primary">En savoir plus</a>
+                    <div class="container">
+    <h1 class="my-4">Weather Data</h1>
+
+    <div class="row">
+      <div class="col-md-4">
+        <label for="stationSelect" class="form-label">Station</label>
+        <select class="form-select" id="stationSelect">
+          <!-- Options will be populated using JavaScript -->
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <label for="yearSelect" class="form-label">Year</label>
+        <select class="form-select" id="yearSelect">
+          <!-- Options will be populated using JavaScript -->
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <button class="btn btn-primary mt-4" id="searchButton">Search</button>
+      </div>
+    </div>
+
+    <div class="row mt-5">
+      <div class="col-12">
+        <div id="chartContainer">
+          <!-- Chart will be displayed here using JavaScript -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+                </div>
+                <div class="col-md-6">
+                    <i style="font-size: 3vw;" fill="currentColor" class="bi bi-cloud-drizzle"></i>
+                </div>
+            </div>
+        </section>
+        <button id="scrollToTopButton" class="btn btn-primary rounded-circle position-fixed" style="display: none; bottom: 20px; right: 20px;" title="Retour en haut">
+    <i class="bi bi-arrow-up"></i>
+</button>
+    </main>
+
+    <footer class="bg-primary text-white py-3">
+        <div class="container">
+            <p class="text-center mb-0">&copy; 2023 PluviométriePro. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</body>
+
+</html>
