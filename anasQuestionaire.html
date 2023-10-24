@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz QCM</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container my-5">
+    <div class="card">
+        <div class="card-header text-center bg-primary text-white">
+            <h2>Quiz QCM</h2>
+        </div>
+        <div class="card-body" id="quiz-container">
+            <h5 class="card-title">Question <span id="question-number">1</span> sur 10</h5>
+            <p class="card-text" id="question-text"></p>
+            <form id="question-form">
+                <div id="options"></div>
+                <button type="button" class="btn btn-success mt-3" id="next-btn">Valider</button>
+            </form>
+        </div>
+        <div class="card-body" id="result" style="display: none;">
+            <h5 class="card-title">Résultat:</h5>
+            <p class="card-text">Votre note: <span id="score"></span>/10</p>
+            <ul id="answer-list"></ul>
+            <button class="btn btn-primary" id="restart-btn">Recommencer</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    const questions = [
+
+{
+"text": "Qui a remporté le Ballon d'Or en 2019 ?",
+"options": ["Lionel Messi", "Cristiano Ronaldo", "Virgil van Dijk", "Kylian Mbappé"],
+"correct": 0
+},
+
+{
+"text": "Quelle équipe a remporté la Copa America en 2019 ?",
+"options": ["Brésil", "Argentine", "Uruguay", "Colombie"],
+"correct": 0
+},
+
+{
+"text": "Où a eu lieu la Coupe du Monde de la FIFA en 2018 ?",
+"options": ["Russie", "Qatar", "Brésil", "France"],
+"correct": 0
+},
+
+{
+"text": "Quel club a remporté la Ligue des Champions de l'UEFA en 2021 ?",
+"options": ["Manchester City", "Chelsea", "Paris Saint-Germain", "Bayern Munich"],
+"correct": 1
+},
+
+{
+"text": "Qui a été le meilleur buteur de la Coupe du Monde de la FIFA en 2018 ?",
+"options": ["Kylian Mbappé", "Luka Modric", "Harry Kane", "Romelu Lukaku"],
+"correct": 2
+},
+{
+"text": "Quelle équipe a été la surprise en atteignant la finale de la Ligue des Nations de l'UEFA en 2019 ?",
+"options": ["Portugal", "Pays-Bas", "Suisse", "Angleterre"],
+"correct": 1
+},
+
+{
+"text": "Quel joueur a remporté le Golden Boy en 2018 ?",
+"options": ["Kylian Mbappé", "Matthijs de Ligt", "João Félix", "Erling Haaland"],
+"correct": 1
+},
+
+{
+"text": "Quelle nation a remporté l'Euro 2020 ?",
+"options": ["France", "Italie", "Angleterre", "Belgique"],
+"correct": 1
+},
+
+{
+"text": "Qui a été le meilleur buteur de l'Euro 2020 ?",
+"options": ["Romelu Lukaku", "Cristiano Ronaldo", "Karim Benzema", "Raheem Sterling"],
+"correct": 1
+},
+
+{
+"text": "Quel club a remporté l'Europa League en 2021 ?",
+"options": ["Manchester United", "Villarreal", "Arsenal", "AS Roma"],
+"correct": 1
+},
+
+{
+"text": "Quelle équipe a remporté la CAN (Coupe d'Afrique des Nations) en 2019 ?",
+"options": ["Algérie", "Sénégal", "Nigeria", "Tunisie"],
+"correct": 0
+},
+
+{
+"text": "Quel joueur a été élu meilleur joueur du monde par la FIFA en 2019 ?",
+"options": ["Lionel Messi", "Cristiano Ronaldo", "Virgil van Dijk", "Mohamed Salah"],
+"correct": 0
+},
+
+{
+"text": "Quel club a été champion de la Premier League anglaise en 2021 ?",
+"options": ["Manchester City", "Liverpool", "Manchester United", "Chelsea"],
+"correct": 0
+},
+
+{
+"text": "Qui a été nommé meilleur joueur de la Ligue des Champions de l'UEFA en 2020 ?",
+"options": ["Robert Lewandowski", "Neymar", "Kevin De Bruyne", "Sergio Ramos"],
+"correct": 0
+},
+
+{
+"text": "Quelle équipe est montée sur le podium de la Coupe du Monde 2018, mais n'a pas atteint la finale ?",
+"options": ["Croatie", "Belgique", "Angleterre", "France"],
+"correct": 1
+}
+    ];
+
+    let shuffledQuestions;
+    let currentQuestionIndex;
+    let score;
+    let answers;
+
+    function startQuiz() {
+        shuffledQuestions = shuffle(questions).slice(0, 10);
+        currentQuestionIndex = 0;
+        score = 0;
+        answers = [];
+        loadQuestion();
+        document.getElementById('quiz-container').style.display = 'block';
+        document.getElementById('result').style.display = 'none';
+    }
+
+    function shuffle(array) {
+        let currentIndex = array.length, randomIndex;
+        while (currentIndex !== 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+        }
+        return array;
+    }
+
+    function loadQuestion() {
+        const question = shuffledQuestions[currentQuestionIndex];
+        document.getElementById('question-text').textContent = question.text;
+        const optionsDiv = document.getElementById('options');
+        optionsDiv.innerHTML = '';
+        question.options.forEach((option, index) => {
+            const radio = document.createElement('input');
+            radio.type = 'radio';
+            radio.name = 'option';
+            radio.value = index;
+            radio.id = 'option' + index;
+            radio.className = 'mr-2';
+
+            const label = document.createElement('label');
+            label.htmlFor = 'option' + index;
+            label.textContent = option;
+
+            const div = document.createElement('div');
+            div.className = 'form-check';
+            div.appendChild(radio);
+            div.appendChild(label);
+
+            optionsDiv.appendChild(div);
+        });
+    }
+
+    document.getElementById('next-btn').addEventListener('click', function() {
+        const selectedOption = document.querySelector('input[name="option"]:checked');
+        const correctOption = document.getElementById('option' + shuffledQuestions[currentQuestionIndex].correct);
+        correctOption.nextSibling.style.color = 'green';
+
+        if (selectedOption && shuffledQuestions[currentQuestionIndex].correct === parseInt(selectedOption.value)) {
+            score++;
+        }
+        answers.push({
+            question: shuffledQuestions[currentQuestionIndex].text,
+            answer: selectedOption ? shuffledQuestions[currentQuestionIndex].options[parseInt(selectedOption.value)] : "Pas de réponse",
+            correct: shuffledQuestions[currentQuestionIndex].options[shuffledQuestions[currentQuestionIndex].correct]
+        });
+
+        currentQuestionIndex++;
+
+        if (currentQuestionIndex < 10) {
+            setTimeout(function() {
+                document.getElementById('question-number').textContent = currentQuestionIndex + 1;
+                loadQuestion();
+            }, 1000);
+        } else {
+            setTimeout(function() {
+                document.getElementById('quiz-container').style.display = 'none';
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('score').textContent = score;
+                const answerList = document.getElementById('answer-list');
+                answers.forEach(answer => {
+                    const li = document.createElement('li');
+                    li.textContent = `${answer.question} Votre réponse: ${answer.answer}. Réponse correcte: ${answer.correct}`;
+                    answerList.appendChild(li);
+                });
+            }, 1000);
+        }
+    });
+
+    document.getElementById('restart-btn').addEventListener('click', startQuiz);
+
+    startQuiz();
+</script>
+</body>
+</html>
